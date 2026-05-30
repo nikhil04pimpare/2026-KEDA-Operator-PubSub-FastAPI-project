@@ -1,0 +1,22 @@
+services:
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    container_name: pubsub-emulator
+    ports:
+      - "8085:8085"
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 --project=local-project
+    environment:
+      - PUBSUB_EMULATOR_HOST=0.0.0.0:8085
+
+  mock-metrics-exporter:
+    image: python:3.11-slim
+    container_name: mock-metrics-exporter
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./mock_exporter.py:/app/mock_exporter.py
+    working_dir: /app
+    command: python mock_exporter.py
+    environment:
+      # Tell the metric backend to look directly at the side-by-side docker service
+      - PUBSUB_EMULATOR_HOST=pubsub-emulator:8085

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: local-pubsub-metrics
+  namespace: default
+spec:
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: local-pubsub-metrics
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 10.0.2.2 # If using Minikube or Kind. For Docker Desktop replace with host IP or use a standard internal pod selector
+    ports:
+      - port: 8000

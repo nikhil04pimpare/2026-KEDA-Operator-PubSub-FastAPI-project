@@ -1,0 +1,37 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: pubsub-worker-scaler
+  namespace: default
+spec:
+  jobTargetRef:
+    parallelism: 1
+    completions: 1
+    activeDeadlineSeconds: 600
+    backoffLimit: 4
+    template:
+      metadata:
+        labels:
+          app: worker
+      spec:
+        restartPolicy: Never
+        containers:
+        - name: worker
+          image: worker:latest
+          imagePullPolicy: Never
+          env:
+          - name: PUBSUB_EMULATOR_HOST
+            value: "host.docker.internal:8085"
+          - name: GCP_PROJECT_ID
+            value: "local-project"
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  pollingInterval: 5 # Check every 5 seconds
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  triggers:
+  - type: metrics-api
+    metadata:
+      url: "http://publisher.default.svc.cluster.local/metrics"
+      valueLocation: "backlog"
+      targetValue: "1"

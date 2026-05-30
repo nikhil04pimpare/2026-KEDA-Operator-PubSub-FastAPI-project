@@ -1,0 +1,18 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: keda-pubsub-auth
+  namespace: default
+spec:
+  secretTargetRef:
+    - parameter: GoogleApplicationCredentials
+      name: dummy-gcp-secret
+      key: credentials.json
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dummy-gcp-secret
+  namespace: default
+stringData:
+  credentials.json: '{"type": "service_account", "project_id": "local-project"}'
